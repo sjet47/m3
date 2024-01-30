@@ -19,3 +19,6 @@
 
 # Go workspace file
 go.work
+
+.m3
+m3

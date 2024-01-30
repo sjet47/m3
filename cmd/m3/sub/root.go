@@ -12,14 +12,20 @@ import (
 )
 
 var (
-	cfApiKey string
+	cfApiKey    string
+	skipInitApi = make(map[string]bool)
 )
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "m3",
 	Short: "A Minecraft Mod Manager (https://github.com/ASjet/m3)",
+	Args:  cobra.ExactArgs(1),
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		if skipInitApi[cmd.Name()] {
+			return nil
+		}
+
 		if len(cfApiKey) == 0 {
 			cfApiKey = os.Getenv("CURSE_FORGE_APIKEY")
 		}

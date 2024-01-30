@@ -8,11 +8,7 @@ import (
 func IsExist(path string) bool {
 	_, err := os.Lstat(path)
 	if err != nil {
-		if os.IsNotExist(err) {
-			return false
-		}
-		// handle other errors if needed
-		return false
+		return !os.IsNotExist(err)
 	}
 	return true
 }
@@ -20,11 +16,7 @@ func IsExist(path string) bool {
 func IsDirExists(path string) bool {
 	fileInfo, err := os.Lstat(path)
 	if err != nil {
-		if os.IsNotExist(err) {
-			return false
-		}
-		// handle other errors if needed
-		return false
+		return !os.IsNotExist(err)
 	}
 	return fileInfo.IsDir()
 }
@@ -32,10 +24,7 @@ func IsDirExists(path string) bool {
 func CanSymbolLink(path string) bool {
 	fileInfo, err := os.Lstat(path)
 	if err != nil {
-		if os.IsNotExist(err) {
-			return true
-		}
-		return false
+		return os.IsNotExist(err)
 	}
 	return fileInfo.Mode()&os.ModeSymlink != 0
 }

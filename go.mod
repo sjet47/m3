@@ -3,7 +3,7 @@ module m3
 go 1.21.6
 
 require (
-	github.com/ASjet/go-curseforge v0.5.0
+	github.com/ASjet/go-curseforge v0.5.1
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.8.4

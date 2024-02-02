@@ -1,4 +1,4 @@
-module m3
+module github.com/ASjet/m3
 
 go 1.21.6
 

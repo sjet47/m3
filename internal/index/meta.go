@@ -2,9 +2,10 @@ package index
 
 import (
 	"fmt"
-	"m3/internal/util"
 	"path/filepath"
 	"regexp"
+
+	"github.com/ASjet/m3/internal/util"
 
 	"github.com/ASjet/go-curseforge/schema"
 	"github.com/pkg/errors"

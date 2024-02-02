@@ -5,8 +5,9 @@ package sub
 
 import (
 	"errors"
-	"m3/internal/mod"
 	"os"
+
+	"github.com/ASjet/m3/internal/mod"
 
 	"github.com/spf13/cobra"
 )

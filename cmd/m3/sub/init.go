@@ -1,7 +1,7 @@
 package sub
 
 import (
-	"m3/internal/index"
+	"github.com/ASjet/m3/internal/index"
 
 	"github.com/spf13/cobra"
 )

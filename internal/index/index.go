@@ -2,9 +2,10 @@ package index
 
 import (
 	"fmt"
-	"m3/internal/util"
 	"os"
 	"path/filepath"
+
+	"github.com/ASjet/m3/internal/util"
 
 	"github.com/pkg/errors"
 )

@@ -5,7 +5,7 @@ import (
 )
 
 func TestDepTree(t *testing.T) {
-	deps := []*DepNode{
+	deps := []*DepNode[int]{
 		Dep(1, 4),
 		Dep(2, 4),
 		Dep(3, 1),
@@ -54,5 +54,4 @@ func TestDepTree(t *testing.T) {
 		}
 		exist[node] = true
 	}
-
 }

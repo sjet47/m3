@@ -1,5 +1,9 @@
 github.com/ASjet/go-curseforge v0.5.1 h1:c4Jq/D+cYdNuSNcTdIyJmk4MkzCBH5DgGh0XEhh0cNc=
 github.com/ASjet/go-curseforge v0.5.1/go.mod h1:Durs+v4rHGRHDCCezdK513JxRS3Wrvd211qevwqPbII=
+github.com/ASjet/go-curseforge v0.5.2-0.20240203130629-88baa0077985 h1:TODwJgaZDpK8K3Dk3qanhQDFeKyaRzsNaf7q7FqrY3Q=
+github.com/ASjet/go-curseforge v0.5.2-0.20240203130629-88baa0077985/go.mod h1:Durs+v4rHGRHDCCezdK513JxRS3Wrvd211qevwqPbII=
+github.com/ASjet/go-curseforge v0.5.2 h1:xm/zh8GDe0KPlkGq+JcHxQAGehKdYEo3M8vqU6Iflkg=
+github.com/ASjet/go-curseforge v0.5.2/go.mod h1:Durs+v4rHGRHDCCezdK513JxRS3Wrvd211qevwqPbII=
 github.com/cpuguy83/go-md2man/v2 v2.0.3/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

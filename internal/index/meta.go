@@ -27,22 +27,24 @@ func initMeta(gameVersion string) error {
 		return fmt.Errorf("invalid game version %q", gameVersion)
 	}
 
-	m := &meta{GameVersion: schema.GameVersionStr(gameVersion)}
-	if err := util.WriteJsonToFile(metaFilePath, m); err != nil {
-		return errors.Wrapf(err, "write index meta at %s err:", metaFilePath)
+	Meta = &meta{GameVersion: schema.GameVersionStr(gameVersion)}
+	return saveMeta()
+}
+
+func loadMeta() error {
+	m := new(meta)
+	if err := util.ReadJsonFromFile(metaFilePath, m); err != nil {
+		return errors.Wrapf(err, "read index meta file at %s error", metaFilePath)
 	}
 	Meta = m
 
 	return nil
 }
 
-func loadMeta() error {
-	m := new(meta)
-	if err := util.ReadJsonFromFile(metaFilePath, m); err != nil {
-		return errors.Wrapf(err, "read index meta file at %s err:", metaFilePath)
+func saveMeta() error {
+	if err := util.WriteJsonToFile(metaFilePath, Meta); err != nil {
+		return errors.Wrapf(err, "write index meta at %s error", metaFilePath)
 	}
-	Meta = m
-
 	return nil
 }
 

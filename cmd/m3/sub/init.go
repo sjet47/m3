@@ -8,7 +8,8 @@ import (
 
 func init() {
 	rootCmd.AddCommand(subCmdInit)
-	skipInitApi[subCmdInit.Name()] = true
+	skipLoad[subCmdInit.Name()] = true
+	skipSave[subCmdInit.Name()] = true
 }
 
 var subCmdInit = &cobra.Command{

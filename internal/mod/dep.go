@@ -1,26 +1,29 @@
 package mod
 
-import "slices"
+import (
+	"cmp"
+	"slices"
+)
 
-type DepNode struct {
-	Node int
-	Deps []int
+type DepNode[N cmp.Ordered] struct {
+	Node N
+	Deps []N
 }
 
-func Dep(node int, deps ...int) *DepNode {
-	return &DepNode{
+func Dep[N cmp.Ordered](node N, deps ...N) *DepNode[N] {
+	return &DepNode[N]{
 		Node: node,
 		Deps: deps,
 	}
 }
 
-type DepTree struct {
-	nodesMap map[int]*DepNode
+type DepTree[N cmp.Ordered] struct {
+	nodesMap map[N]*DepNode[N]
 }
 
-func NewDepTree(nodes ...*DepNode) *DepTree {
-	dt := &DepTree{
-		nodesMap: make(map[int]*DepNode),
+func NewDepTree[N cmp.Ordered](nodes ...*DepNode[N]) *DepTree[N] {
+	dt := &DepTree[N]{
+		nodesMap: make(map[N]*DepNode[N]),
 	}
 	for _, node := range nodes {
 		dt.AddNode(node)
@@ -28,15 +31,15 @@ func NewDepTree(nodes ...*DepNode) *DepTree {
 	return dt
 }
 
-func (dt *DepTree) AddNode(node *DepNode) {
+func (dt *DepTree[N]) AddNode(node *DepNode[N]) {
 	if _, ok := dt.nodesMap[node.Node]; !ok {
-		dt.nodesMap[node.Node] = new(DepNode)
+		dt.nodesMap[node.Node] = new(DepNode[N])
 	}
 	for _, dep := range node.Deps {
 		if d, ok := dt.nodesMap[dep]; !ok {
-			dt.nodesMap[dep] = &DepNode{
+			dt.nodesMap[dep] = &DepNode[N]{
 				Node: dep,
-				Deps: []int{node.Node},
+				Deps: []N{node.Node},
 			}
 		} else {
 			d.Deps = append(d.Deps, node.Node)
@@ -44,9 +47,9 @@ func (dt *DepTree) AddNode(node *DepNode) {
 	}
 }
 
-func (dt *DepTree) TopSort() []int {
-	var sorted []int
-	visited := make(map[int]bool)
+func (dt *DepTree[N]) TopSort() []N {
+	var sorted []N
+	visited := make(map[N]bool)
 	for node := range dt.nodesMap {
 		dt.topSort(node, visited, &sorted)
 	}
@@ -54,7 +57,7 @@ func (dt *DepTree) TopSort() []int {
 	return sorted
 }
 
-func (dt *DepTree) topSort(node int, visited map[int]bool, sorted *[]int) {
+func (dt *DepTree[N]) topSort(node N, visited map[N]bool, sorted *[]N) {
 	if visited[node] {
 		return
 	}

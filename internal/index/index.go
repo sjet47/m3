@@ -18,11 +18,15 @@ func Init(gameVersion string) error {
 	abs, _ := filepath.Abs(M3Root)
 	reinit := util.IsDirExists(M3Root)
 	if err := os.MkdirAll(M3Root, 0755); err != nil {
-		return errors.Wrapf(err, "create m3 index root %s error:", abs)
+		return errors.Wrapf(err, "create m3 index root %s error", abs)
 	}
 
 	if err := initMeta(gameVersion); err != nil {
-		return errors.Wrap(err, "init m3 index error:")
+		return errors.Wrap(err, "init m3 index error")
+	}
+
+	if err := initMod(); err != nil {
+		return errors.Wrap(err, "init m3 index error")
 	}
 
 	if reinit {
@@ -36,8 +40,19 @@ func Init(gameVersion string) error {
 func Load() error {
 	if err := doWith(
 		loadMeta,
+		loadMods,
 	); err != nil {
-		return errors.Wrap(err, "Load m3 index error:")
+		return errors.Wrap(err, "Load m3 index error")
+	}
+	return nil
+}
+
+func Save() error {
+	if err := doWith(
+		saveMeta,
+		saveMods,
+	); err != nil {
+		return errors.Wrap(err, "Save m3 index error")
 	}
 	return nil
 }

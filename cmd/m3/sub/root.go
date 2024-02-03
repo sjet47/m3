@@ -7,6 +7,7 @@ import (
 	"errors"
 	"os"
 
+	"github.com/ASjet/m3/internal/index"
 	"github.com/ASjet/m3/internal/mod"
 
 	"github.com/spf13/cobra"
@@ -28,16 +29,14 @@ var rootCmd = &cobra.Command{
 		}
 
 		if len(cfApiKey) == 0 {
-			cfApiKey = os.Getenv("CURSE_FORGE_APIKEY")
-		}
-
-		if len(cfApiKey) == 0 {
-			return errors.New("no CurseForge API key provided")
+			if cfApiKey = os.Getenv("CURSE_FORGE_APIKEY"); len(cfApiKey) == 0 {
+				return errors.New("no CurseForge API key provided")
+			}
 		}
 
 		mod.Init(cfApiKey)
 
-		return nil
+		return index.Load()
 	},
 }
 

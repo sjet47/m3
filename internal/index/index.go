@@ -25,6 +25,10 @@ func Init(gameVersion string) error {
 		return errors.Wrap(err, "init m3 index error")
 	}
 
+	if err := initMod(); err != nil {
+		return errors.Wrap(err, "init m3 index error")
+	}
+
 	if reinit {
 		fmt.Printf("Reinitialized existing m3 index in %s/\n", abs)
 	} else {
@@ -36,6 +40,7 @@ func Init(gameVersion string) error {
 func Load() error {
 	if err := doWith(
 		loadMeta,
+		loadMods,
 	); err != nil {
 		return errors.Wrap(err, "Load m3 index error")
 	}
@@ -45,6 +50,7 @@ func Load() error {
 func Save() error {
 	if err := doWith(
 		saveMeta,
+		saveMods,
 	); err != nil {
 		return errors.Wrap(err, "Save m3 index error")
 	}

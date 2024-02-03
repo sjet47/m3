@@ -14,8 +14,9 @@ import (
 )
 
 var (
-	cfApiKey    string
-	skipInitApi = make(map[string]bool)
+	cfApiKey string
+	skipLoad = make(map[string]bool)
+	skipSave = make(map[string]bool)
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -24,7 +25,7 @@ var rootCmd = &cobra.Command{
 	Short: "A Minecraft Mod Manager (https://github.com/ASjet/m3)",
 	Args:  cobra.ExactArgs(1),
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		if skipInitApi[cmd.Name()] {
+		if skipLoad[cmd.Name()] {
 			return nil
 		}
 
@@ -37,6 +38,13 @@ var rootCmd = &cobra.Command{
 		mod.Init(cfApiKey)
 
 		return index.Load()
+	},
+	PersistentPostRunE: func(cmd *cobra.Command, args []string) error {
+		if skipSave[cmd.Name()] {
+			return nil
+		}
+
+		return index.Save()
 	},
 }
 

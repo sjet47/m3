@@ -18,9 +18,9 @@ var (
 )
 
 func init() {
-	subCmdAdd.PersistentFlags().BoolVarP(&optDep,
+	subCmdAdd.Flags().BoolVarP(&optDep,
 		"optional", "o", false, "Download optional dependencies")
-	subCmdAdd.PersistentFlags().StringVarP(&modLoader,
+	subCmdAdd.Flags().StringVarP(&modLoader,
 		"modloader", "l", "Forge", "Mod loader")
 	rootCmd.AddCommand(subCmdAdd)
 }

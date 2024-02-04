@@ -44,10 +44,18 @@ func NewMod(modLoader enum.ModLoader, mod *schema.Mod, file *schema.File) *Mod {
 	m.Summary = mod.Summary
 	m.GameVersion = string(Meta.GameVersion)
 	m.ModLoader = modLoader.String()
+
+	if file == nil {
+		m.File.Date = time.Now()
+		return m
+	}
+
 	m.File.ID = file.ID
 	m.File.Name = file.FileName
 	m.File.ReleaseType = file.ReleaseType.String()
-	m.File.Hash = file.Hashes[0].Value
+	if len(file.Hashes) > 0 {
+		m.File.Hash = file.Hashes[0].Value
+	}
 	m.File.Date = file.FileDate
 	m.File.DownloadUrl = file.DownloadURL
 	m.File.IsServerPack = file.IsServerPack

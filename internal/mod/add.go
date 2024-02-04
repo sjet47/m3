@@ -1,6 +1,7 @@
 package mod
 
 import (
+	"fmt"
 	"sync"
 
 	"github.com/ASjet/go-curseforge"
@@ -22,23 +23,31 @@ func Add(modLoaderStr string, optDep bool, ids ...int) error {
 		return errors.Wrapf(err, "invalid mod loader %q", modLoaderStr)
 	}
 
+	// Fetch direct mod files
 	modIDs := util.Map(func(id int) schema.ModID { return schema.ModID(id) }, ids...)
 	modFileMap := fetchModFiles(modLoader, modIDs...)
 
+	// Fetch dependencies files
 	depIDs := util.Filter(func(id schema.ModID) bool {
 		_, ok := modFileMap[id]
 		return !ok
 	}, extractDeps(optDep, modFileMap)...)
 	depFileMap := fetchModFiles(modLoader, depIDs...)
 
+	// Fetch mod info
 	modMap := fetchMods(append(util.Keys(modFileMap), util.Keys(depFileMap)...)...)
-	for modID, result := range modFileMap {
-		index.Mods[modID] = index.NewMod(modLoader, modMap[modID].Value, result.Value)
+
+	// Display mod info in table
+	fmt.Println(renderModInfoTable(modMap, modFileMap, depFileMap))
+
+	// Prompt user for download confirmation with mod info
+	if promptDownload() {
+		// Write to index
+		for modID, result := range modFileMap {
+			index.Mods[modID] = index.NewMod(modLoader, modMap[modID].Value, result.Value)
+		}
+		// TODO: download mods
 	}
-
-	// TODO: handle fetch errors
-	// TODO: display new mod list
-
 	return nil
 }
 
@@ -96,7 +105,6 @@ func fetchModFiles(modLoader enum.ModLoader, modIDs ...schema.ModID) fetchFileRe
 			var res util.Result[*schema.File]
 			if err != nil {
 				res = util.Err[*schema.File](err)
-				res.Value = &schema.File{ModID: modID}
 			} else {
 				res = util.Ok(&resp.Data[0])
 			}

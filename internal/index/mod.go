@@ -30,7 +30,8 @@ type Mod struct {
 		ID           schema.FileID `json:"id,omitempty"`
 		Name         string        `json:"name,omitempty"`
 		ReleaseType  string        `json:"release_type,omitempty"`
-		Hash         string        `json:"hash,omitempty"`
+		HashMD5      string        `json:"hash_md5,omitempty"`
+		HashSHA1     string        `json:"hash_sha1,omitempty"`
 		Date         time.Time     `json:"date"`
 		DownloadUrl  string        `json:"download_url,omitempty"`
 		IsServerPack bool          `json:"is_server_pack"`
@@ -53,8 +54,13 @@ func NewMod(modLoader enum.ModLoader, mod *schema.Mod, file *schema.File) *Mod {
 	m.File.ID = file.ID
 	m.File.Name = file.FileName
 	m.File.ReleaseType = file.ReleaseType.String()
-	if len(file.Hashes) > 0 {
-		m.File.Hash = file.Hashes[0].Value
+	for _, hash := range file.Hashes {
+		switch hash.Algo {
+		case enum.HashAlgoMD5:
+			m.File.HashMD5 = hash.Value
+		case enum.HashAlgoSHA1:
+			m.File.HashSHA1 = hash.Value
+		}
 	}
 	m.File.Date = file.FileDate
 	m.File.DownloadUrl = file.DownloadURL

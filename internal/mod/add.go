@@ -42,11 +42,19 @@ func Add(modLoaderStr string, optDep bool, ids ...int) error {
 
 	// Prompt user for download confirmation with mod info
 	if promptDownload() {
+		downloadMap := make(map[string]string, len(modFileMap))
+
 		// Write to index
 		for modID, result := range modFileMap {
+			if file := result.Value; file != nil && file.DownloadURL != "" && file.FileName != "" {
+				downloadMap[file.FileName] = file.DownloadURL
+			}
 			index.Mods[modID] = index.NewMod(modLoader, modMap[modID].Value, result.Value)
 		}
-		// TODO: download mods
+
+		// TODO: add checksum verification
+		downloadCnt := downloadFiles(downloadMap)
+		fmt.Printf("(%d/%d) mod downloaded\n", downloadCnt, len(downloadMap))
 	}
 	return nil
 }

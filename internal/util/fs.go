@@ -13,6 +13,14 @@ func IsExist(path string) bool {
 	return true
 }
 
+func IsFileExist(path string) bool {
+	fileInfo, err := os.Lstat(path)
+	if err != nil {
+		return !os.IsNotExist(err)
+	}
+	return fileInfo.Mode().IsRegular()
+}
+
 func IsDirExists(path string) bool {
 	fileInfo, err := os.Lstat(path)
 	if err != nil {

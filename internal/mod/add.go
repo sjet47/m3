@@ -42,11 +42,23 @@ func Add(modLoaderStr string, optDep bool, ids ...int) error {
 
 	// Prompt user for download confirmation with mod info
 	if promptDownload() {
+		downloadMods := make([]*util.DownloadTask, 0, len(modFileMap))
+
 		// Write to index
 		for modID, result := range modFileMap {
-			index.Mods[modID] = index.NewMod(modLoader, modMap[modID].Value, result.Value)
+			mod := index.NewMod(modLoader, modMap[modID].Value, result.Value)
+			index.Mods[modID] = mod
+			if file := result.Value; file != nil && file.DownloadURL != "" && file.FileName != "" {
+				downloadMods = append(downloadMods, &util.DownloadTask{
+					FileName: mod.File.Name,
+					Url:      mod.File.DownloadUrl,
+					MD5Sum:   mod.File.HashMD5,
+				})
+			}
 		}
-		// TODO: download mods
+
+		downloadCnt := util.Download(downloadMods...)
+		fmt.Printf("(%d/%d) mod downloaded\n", downloadCnt, len(modMap))
 	}
 	return nil
 }

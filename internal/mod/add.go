@@ -11,6 +11,8 @@ import (
 	"github.com/ASjet/m3/internal/index"
 	"github.com/ASjet/m3/internal/util"
 	"github.com/pkg/errors"
+	"github.com/vbauerster/mpb"
+	"github.com/vbauerster/mpb/decor"
 )
 
 func Init(apiKey string) {
@@ -22,10 +24,22 @@ func Add(modLoaderStr string, optDep bool, ids ...int) error {
 	if err != nil {
 		return errors.Wrapf(err, "invalid mod loader %q", modLoaderStr)
 	}
+	modIDs := util.Map(func(id int) schema.ModID { return schema.ModID(id) }, ids...)
+	proc := mpb.New()
+
+	fileSpn := proc.AddSpinner(2,
+		mpb.SpinnerOnLeft,
+		mpb.BarClearOnComplete(),
+		mpb.PrependDecorators(
+			decor.OnComplete(decor.Name("🔥", decor.WCSyncSpaceR), "✅"),
+			decor.OnComplete(decor.Name("Resolving dependency", decor.WCSyncSpaceR), "Resolve dependency"),
+			decor.OnComplete(decor.Percentage(decor.WCSyncSpace), ""),
+		),
+	)
 
 	// Fetch direct mod files
-	modIDs := util.Map(func(id int) schema.ModID { return schema.ModID(id) }, ids...)
 	modFileMap := fetchModFiles(modLoader, modIDs...)
+	fileSpn.Increment()
 
 	// Fetch dependencies files
 	depIDs := util.Filter(func(id schema.ModID) bool {
@@ -33,11 +47,24 @@ func Add(modLoaderStr string, optDep bool, ids ...int) error {
 		return !ok
 	}, extractDeps(optDep, modFileMap)...)
 	depFileMap := fetchModFiles(modLoader, depIDs...)
+	fileSpn.Increment()
 
+	allModIDs := append(util.Keys(modFileMap), util.Keys(depFileMap)...)
+	infoSpn := proc.AddSpinner(1,
+		mpb.SpinnerOnLeft,
+		mpb.BarClearOnComplete(),
+		mpb.PrependDecorators(
+			decor.OnComplete(decor.Name("🔥", decor.WCSyncSpaceR), "✅"),
+			decor.OnComplete(decor.Name("Fetching mods info", decor.WCSyncSpaceR), "Fetch mods info"),
+			decor.OnComplete(decor.Percentage(decor.WCSyncSpace), ""),
+		),
+	)
 	// Fetch mod info
-	modMap := fetchMods(append(util.Keys(modFileMap), util.Keys(depFileMap)...)...)
+	modMap := fetchMods(allModIDs...)
+	infoSpn.Increment()
+	proc.Wait()
 
-	// Display mod info in table
+	// Print mod info table
 	fmt.Println(renderModInfoTable(modMap, modFileMap, depFileMap))
 
 	// Prompt user for download confirmation with mod info

@@ -61,7 +61,7 @@ func Download(tasks ...*DownloadTask) (success int64) {
 			}
 
 			if skip {
-				log.Printf("Skip download %s: file already exist", task.FileName)
+				log.Printf("Skip exist file: %s", task.FileName)
 				proc.Abort(bar, true)
 			}
 

@@ -2,6 +2,7 @@ package mod
 
 import (
 	"fmt"
+	"maps"
 	"sync"
 
 	"github.com/ASjet/go-curseforge"
@@ -69,6 +70,7 @@ func Add(modLoaderStr string, optDep bool, ids ...int) error {
 
 	// Prompt user for download confirmation with mod info
 	if promptDownload() {
+		maps.Copy(modFileMap, depFileMap)
 		downloadMods := make([]*util.DownloadTask, 0, len(modFileMap))
 
 		// Write to index
@@ -85,7 +87,7 @@ func Add(modLoaderStr string, optDep bool, ids ...int) error {
 		}
 
 		downloadCnt := util.Download(downloadMods...)
-		fmt.Printf("(%d/%d) mod downloaded\n", downloadCnt, len(modMap))
+		fmt.Printf("(%d/%d) mod downloaded\n", downloadCnt, len(allModIDs))
 	}
 	return nil
 }

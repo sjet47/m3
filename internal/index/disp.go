@@ -7,12 +7,6 @@ import (
 	"github.com/jedib0t/go-pretty/v6/text"
 )
 
-var (
-	rowConfig = table.RowConfig{
-		AutoMerge: true,
-	}
-)
-
 func renderMods(mods ModIndexes) string {
 	t := table.NewWriter()
 	t.SetStyle(table.StyleRounded)
@@ -22,11 +16,11 @@ func renderMods(mods ModIndexes) string {
 	t.SetAutoIndex(true)
 
 	for modID, mod := range mods {
+		date := "⛔Release Not Found⛔"
 		if len(mod.Name) == 0 {
 			errMsg := "⛔Mod Not Found⛔"
-			t.AppendRow(table.Row{modID, errMsg, errMsg, mod.IsDependency}, rowConfig)
+			t.AppendRow(table.Row{modID, errMsg, date, mod.IsDependency})
 		} else {
-			date := "⛔Release Not Found⛔"
 			if len(mod.File.Name) > 0 {
 				date = mod.File.Date.Format(time.RFC3339)
 			}
@@ -35,7 +29,7 @@ func renderMods(mods ModIndexes) string {
 				mod.Name,
 				date,
 				mod.IsDependency,
-			}, rowConfig)
+			})
 		}
 	}
 	return t.Render()

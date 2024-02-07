@@ -1,6 +1,7 @@
 package mod
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/jedib0t/go-pretty/v6/table"
@@ -25,7 +26,7 @@ func renderModInfoTable(modInfoMap fetchModResult, directFileMap, depFileMap fet
 		for modID, result := range fileMap {
 			info := modInfoMap[modID]
 			if info.Err != nil {
-				errMsg := info.Err.Error()
+				errMsg := fmt.Sprintf("⛔%s⛔", info.Err.Error())
 				t.AppendRow(table.Row{modID, errMsg, errMsg, errMsg, isDep}, rowConfig)
 			} else {
 				mod := info.Value

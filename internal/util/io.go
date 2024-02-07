@@ -37,34 +37,10 @@ func Download(tasks ...*DownloadTask) (success int64) {
 	for _, task := range tasks {
 		go func(task *DownloadTask) {
 			defer wg.Done()
-			bar := proc.AddBar(0,
-				mpb.BarClearOnComplete(),
-				mpb.TrimSpace(),
-				mpb.PrependDecorators(
-					decor.OnComplete(decor.Name("🔥", decor.WCSyncSpaceR), "✅"),
-					decor.Name(task.FileName, decor.WCSyncSpaceR),
-					decor.OnComplete(decor.CountersKibiByte("% 6.1f / % 6.1f ", decor.WCSyncSpace), ""),
-					decor.OnComplete(decor.AverageSpeed(decor.UnitKiB, "% .2f", decor.WCSyncSpace), ""),
-					decor.OnComplete(decor.EwmaETA(decor.ET_STYLE_MMSS, 60, decor.WCSyncSpace), ""),
-					decor.OnComplete(decor.Name("", decor.WCSyncSpaceR), ""),
-				),
-				mpb.AppendDecorators(
-					decor.OnComplete(decor.Percentage(decor.WC{W: 6}), ""),
-				),
-			)
-
-			skip, err := task.download(".", bar)
-			if err != nil {
+			if err := task.download(".", proc); err != nil {
 				log.Printf("Download %s error: %s", task.FileName, err)
-				proc.Abort(bar, false)
 				return
 			}
-
-			if skip {
-				log.Printf("Skip exist file: %s", task.FileName)
-				proc.Abort(bar, true)
-			}
-
 			successCnt.Add(1)
 		}(task)
 	}
@@ -74,46 +50,91 @@ func Download(tasks ...*DownloadTask) (success int64) {
 
 // Download downloads file from url and save it to fileName
 // returns skip if file already exists and has the same md5sum
-func (d *DownloadTask) download(path string, bar *mpb.Bar) (skip bool, err error) {
+func (d *DownloadTask) download(path string, proc *mpb.Progress) error {
 	filePath := filepath.Join(path, d.FileName)
 
-	if passHashVerify, _ := verifyMD5Sum(filePath, d.MD5Sum); passHashVerify {
-		bar.SetTotal(0, true)
-		return true, nil
+	checkLocalBar := proc.AddSpinner(0,
+		mpb.SpinnerOnLeft,
+		mpb.BarRemoveOnComplete(),
+		mpb.PrependDecorators(
+			decor.Name("🔍", decor.WCSyncSpaceR),
+			decor.Name(d.FileName, decor.WCSyncSpaceR),
+			decor.Name("Checking local file...", decor.WCSyncSpaceR),
+		),
+	)
+	passHashVerify, _ := verifyMD5Sum(filePath, d.MD5Sum, checkLocalBar)
+	checkLocalBar.SetTotal(0, true)
+
+	downloadBar := proc.AddBar(0,
+		mpb.BarClearOnComplete(),
+		mpb.BarParkTo(checkLocalBar),
+		mpb.OptionOnCondition(mpb.PrependDecorators(
+			decor.OnComplete(decor.Name("🔥", decor.WCSyncSpaceR), "✅"),
+			decor.Name(d.FileName, decor.WCSyncSpaceR),
+			decor.OnComplete(decor.CountersKibiByte("% 6.1f / % 6.1f ", decor.WCSyncSpace), ""),
+			decor.OnComplete(decor.AverageSpeed(decor.UnitKiB, "% .2f", decor.WCSyncSpace), ""),
+			decor.OnComplete(decor.EwmaETA(decor.ET_STYLE_MMSS, 60, decor.WCSyncSpace), ""),
+			decor.OnComplete(decor.Name("", decor.WCSyncSpaceR), ""),
+		), func() bool {
+			return !passHashVerify
+		}),
+		mpb.OptionOnCondition(mpb.AppendDecorators(
+			decor.OnComplete(decor.Percentage(decor.WC{W: 6}), ""),
+		), func() bool {
+			return !passHashVerify
+		}),
+
+		mpb.OptionOnCondition(mpb.PrependDecorators(
+			decor.Name("✅", decor.WCSyncSpaceR),
+			decor.Name(d.FileName, decor.WCSyncSpaceR),
+		), func() bool {
+			return passHashVerify
+		}),
+	)
+
+	if passHashVerify {
+		downloadBar.SetTotal(0, true)
+		return nil
 	}
+
+	defer func() {
+		if !downloadBar.Completed() {
+			proc.Abort(downloadBar, true)
+		}
+	}()
 
 	f, err := os.Create(filePath)
 	if err != nil {
-		return false, errors.Wrapf(err, "create file %s error", filePath)
+		return errors.Wrapf(err, "create file %s error", filePath)
 	}
 	defer f.Close()
 
 	rsp, err := http.Get(d.Url)
 	if err != nil {
-		return false, errors.Wrapf(err, "request %s error", d.Url)
+		return errors.Wrapf(err, "request %s error", d.Url)
 	}
 	defer rsp.Body.Close()
 
 	hasher := md5.New()
-	var r io.Reader = rsp.Body
-	if bar != nil {
-		bar.SetTotal(rsp.ContentLength, false)
-		r = bar.ProxyReader(r)
+	var r io.ReadCloser = rsp.Body
+	if downloadBar != nil {
+		downloadBar.SetTotal(rsp.ContentLength, false)
+		r = downloadBar.ProxyReader(r)
 	}
 
 	_, err = io.Copy(io.MultiWriter(f, hasher), r)
 	if err != nil {
-		return false, errors.Wrapf(err, "write file %s error", filePath)
+		return errors.Wrapf(err, "write file %s error", filePath)
 	}
 
 	if len(d.MD5Sum) > 0 && !strings.EqualFold(hex.EncodeToString(hasher.Sum(nil)), d.MD5Sum) {
-		return false, ErrCheckSumNotMatch
+		return ErrCheckSumNotMatch
 	}
 
-	return false, nil
+	return nil
 }
 
-func verifyMD5Sum(path, md5sum string) (bool, error) {
+func verifyMD5Sum(path, md5sum string, bar *mpb.Bar) (bool, error) {
 	if len(path) == 0 || len(md5sum) == 0 {
 		return false, nil
 	}
@@ -128,8 +149,16 @@ func verifyMD5Sum(path, md5sum string) (bool, error) {
 	}
 	defer f.Close()
 
+	var r io.Reader = f
+	if bar != nil {
+		if stat, err := f.Stat(); err == nil {
+			bar.SetTotal(stat.Size(), false)
+			r = bar.ProxyReader(r)
+		}
+	}
+
 	hasher := md5.New()
-	io.Copy(hasher, f)
+	io.Copy(hasher, r)
 	fileHash := hex.EncodeToString(hasher.Sum(nil))
 
 	return strings.EqualFold(fileHash, md5sum), nil

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"maps"
 	"sync"
+	"sync/atomic"
 
 	"github.com/ASjet/go-curseforge"
 	"github.com/ASjet/go-curseforge/api"
@@ -20,7 +21,7 @@ func Init(apiKey string) {
 	curseforge.InitDefault(apiKey)
 }
 
-func Add(modLoaderStr string, optDep bool, ids ...int) error {
+func Add(modLoaderStr string, confirm, optDep bool, ids ...int) error {
 	modLoader, err := enum.ParseModLoader(modLoaderStr)
 	if err != nil {
 		return errors.Wrapf(err, "invalid mod loader %q", modLoaderStr)
@@ -61,7 +62,7 @@ func Add(modLoaderStr string, optDep bool, ids ...int) error {
 		),
 	)
 	// Fetch mod info
-	modMap := fetchMods(allModIDs...)
+	modMap, found := fetchMods(allModIDs...)
 	infoSpn.Increment()
 	proc.Wait()
 
@@ -69,7 +70,7 @@ func Add(modLoaderStr string, optDep bool, ids ...int) error {
 	fmt.Println(renderModInfoTable(modMap, modFileMap, depFileMap))
 
 	// Prompt user for download confirmation with mod info
-	if promptDownload() {
+	if found > 0 && promptDownload(confirm) {
 		maps.Copy(modFileMap, depFileMap)
 		downloadMods := make([]*util.DownloadTask, 0, len(modFileMap))
 
@@ -94,7 +95,8 @@ func Add(modLoaderStr string, optDep bool, ids ...int) error {
 
 type fetchModResult map[schema.ModID]util.Result[*schema.Mod]
 
-func fetchMods(modIDs ...schema.ModID) fetchModResult {
+func fetchMods(modIDs ...schema.ModID) (fetchModResult, int64) {
+	successCnt := new(atomic.Int64)
 	wg, mu := new(sync.WaitGroup), new(sync.Mutex)
 	result := make(fetchModResult, len(modIDs))
 
@@ -110,6 +112,7 @@ func fetchMods(modIDs ...schema.ModID) fetchModResult {
 				res.Value = &schema.Mod{ID: modID}
 			} else {
 				res = util.Ok(&resp.Data)
+				successCnt.Add(1)
 			}
 
 			mu.Lock()
@@ -119,7 +122,7 @@ func fetchMods(modIDs ...schema.ModID) fetchModResult {
 	}
 	wg.Wait()
 
-	return result
+	return result, successCnt.Load()
 }
 
 type fetchFileResult map[schema.ModID]util.Result[*schema.File]

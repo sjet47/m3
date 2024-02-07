@@ -7,8 +7,8 @@ import (
 	"strings"
 )
 
-func promptDownload() bool {
-	return strings.ToLower(input("Download mods? [y/N]", "N")) == "y"
+func promptDownload(confirm bool) bool {
+	return confirm || strings.ToLower(input("Download mods? [y/N]", "N")) == "y"
 }
 
 func input(str, byDefault string) string {

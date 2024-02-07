@@ -21,7 +21,7 @@ func Init(apiKey string) {
 	curseforge.InitDefault(apiKey)
 }
 
-func Add(modLoaderStr string, optDep bool, ids ...int) error {
+func Add(modLoaderStr string, confirm, optDep bool, ids ...int) error {
 	modLoader, err := enum.ParseModLoader(modLoaderStr)
 	if err != nil {
 		return errors.Wrapf(err, "invalid mod loader %q", modLoaderStr)
@@ -70,7 +70,7 @@ func Add(modLoaderStr string, optDep bool, ids ...int) error {
 	fmt.Println(renderModInfoTable(modMap, modFileMap, depFileMap))
 
 	// Prompt user for download confirmation with mod info
-	if found > 0 && promptDownload() {
+	if found > 0 && promptDownload(confirm) {
 		maps.Copy(modFileMap, depFileMap)
 		downloadMods := make([]*util.DownloadTask, 0, len(modFileMap))
 

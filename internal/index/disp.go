@@ -24,7 +24,7 @@ func renderMods(mods ModIndexes) string {
 	for modID, mod := range mods {
 		if len(mod.Name) == 0 {
 			errMsg := "⛔Mod Not Found⛔"
-			t.AppendRow(table.Row{modID, errMsg, errMsg, errMsg, mod.IsDependency}, rowConfig)
+			t.AppendRow(table.Row{modID, errMsg, errMsg, mod.IsDependency}, rowConfig)
 		} else {
 			date := "⛔Release Not Found⛔"
 			if len(mod.File.Name) > 0 {

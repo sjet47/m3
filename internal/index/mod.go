@@ -104,7 +104,7 @@ func loadMods() error {
 			return err
 		}
 		if d.IsDir() {
-			return filepath.SkipDir
+			return nil
 		}
 
 		modIDs := strings.Split(filepath.Base(path), ".")[0]

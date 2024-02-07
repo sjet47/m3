@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ASjet/m3/internal/index"
 	"github.com/ASjet/m3/internal/mod"
 	"github.com/ASjet/m3/internal/util"
 	"github.com/pkg/errors"
@@ -43,6 +42,7 @@ var subCmdAdd = &cobra.Command{
 		}
 		return cobra.MinimumNArgs(1)(cmd, args)
 	},
+	PreRunE: initApiKey,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(fileInput) > 0 {
 			f, err := os.Open(fileInput)
@@ -59,10 +59,6 @@ var subCmdAdd = &cobra.Command{
 		modIDs, errIndex, err := util.MapErr(strconv.Atoi, args...)
 		if err != nil {
 			return fmt.Errorf("invalid mod id %q", args[errIndex])
-		}
-
-		if err := index.Load(); err != nil {
-			return err
 		}
 
 		slices.Sort(modIDs)

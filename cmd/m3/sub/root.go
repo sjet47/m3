@@ -19,6 +19,16 @@ var (
 	skipSave = make(map[string]bool)
 )
 
+func initApiKey(cmd *cobra.Command, args []string) error {
+	if len(cfApiKey) == 0 {
+		if cfApiKey = os.Getenv("CURSE_FORGE_APIKEY"); len(cfApiKey) == 0 {
+			return errors.New("no CurseForge API key provided")
+		}
+	}
+	mod.Init(cfApiKey)
+	return nil
+}
+
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "m3",
@@ -28,22 +38,12 @@ var rootCmd = &cobra.Command{
 		if skipLoad[cmd.Name()] {
 			return nil
 		}
-
-		if len(cfApiKey) == 0 {
-			if cfApiKey = os.Getenv("CURSE_FORGE_APIKEY"); len(cfApiKey) == 0 {
-				return errors.New("no CurseForge API key provided")
-			}
-		}
-
-		mod.Init(cfApiKey)
-
 		return index.Load()
 	},
 	PersistentPostRunE: func(cmd *cobra.Command, args []string) error {
 		if skipSave[cmd.Name()] {
 			return nil
 		}
-
 		return index.Save()
 	},
 }

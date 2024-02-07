@@ -16,17 +16,24 @@ import (
 )
 
 var (
-	Mods        map[schema.ModID]*Mod
+	Mods        ModIndexes
 	modsDirPath = filepath.Join(M3Root, "mods")
 )
 
+type ModIndexes map[schema.ModID]*Mod
+
+func (i ModIndexes) String() string {
+	return renderMods(i)
+}
+
 type Mod struct {
-	ID          schema.ModID `json:"mod_id"`
-	Name        string       `json:"mod_name"`
-	Summary     string       `json:"mod_summary"`
-	GameVersion string       `json:"game_version"`
-	ModLoader   string       `json:"mod_loader"`
-	File        struct {
+	ID           schema.ModID `json:"mod_id"`
+	Name         string       `json:"mod_name"`
+	Summary      string       `json:"mod_summary"`
+	GameVersion  string       `json:"game_version"`
+	ModLoader    string       `json:"mod_loader"`
+	IsDependency bool         `json:"is_dependency"`
+	File         struct {
 		ID           schema.FileID `json:"id,omitempty"`
 		Name         string        `json:"name,omitempty"`
 		ReleaseType  string        `json:"release_type,omitempty"`
@@ -38,13 +45,14 @@ type Mod struct {
 	} `json:"file"`
 }
 
-func NewMod(modLoader enum.ModLoader, mod *schema.Mod, file *schema.File) *Mod {
+func NewMod(modLoader enum.ModLoader, mod *schema.Mod, file *schema.File, isDep bool) *Mod {
 	m := new(Mod)
 	m.ID = mod.ID
 	m.Name = mod.Name
 	m.Summary = mod.Summary
 	m.GameVersion = string(Meta.GameVersion)
 	m.ModLoader = modLoader.String()
+	m.IsDependency = isDep
 
 	if file == nil {
 		m.File.Date = time.Now()
@@ -96,7 +104,7 @@ func loadMods() error {
 			return err
 		}
 		if d.IsDir() {
-			return filepath.SkipDir
+			return nil
 		}
 
 		modIDs := strings.Split(filepath.Base(path), ".")[0]

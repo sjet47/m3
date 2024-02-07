@@ -2,7 +2,6 @@ package mod
 
 import (
 	"fmt"
-	"maps"
 	"sync"
 	"sync/atomic"
 
@@ -66,19 +65,27 @@ func Add(modLoaderStr string, confirm, optDep bool, ids ...int) error {
 	infoSpn.Increment()
 	proc.Wait()
 
+	newMods := make(index.ModIndexes, len(allModIDs))
+	for modID, result := range modFileMap {
+		newMods[modID] = index.NewMod(modLoader, modMap[modID].Value, result.Value, false)
+	}
+	for modID, result := range depFileMap {
+		newMods[modID] = index.NewMod(modLoader, modMap[modID].Value, result.Value, true)
+	}
+
 	// Print mod info table
-	fmt.Println(renderModInfoTable(modMap, modFileMap, depFileMap))
+	fmt.Println(newMods.String())
 
 	// Prompt user for download confirmation with mod info
 	if found > 0 && promptDownload(confirm) {
-		maps.Copy(modFileMap, depFileMap)
 		downloadMods := make([]*util.DownloadTask, 0, len(modFileMap))
 
-		// Write to index
-		for modID, result := range modFileMap {
-			mod := index.NewMod(modLoader, modMap[modID].Value, result.Value)
+		for modID, mod := range newMods {
+			// Write to index
 			index.Mods[modID] = mod
-			if file := result.Value; file != nil && file.DownloadURL != "" && file.FileName != "" {
+
+			// Add to download list
+			if mod.File.DownloadUrl != "" && mod.File.Name != "" {
 				downloadMods = append(downloadMods, &util.DownloadTask{
 					FileName: mod.File.Name,
 					Url:      mod.File.DownloadUrl,

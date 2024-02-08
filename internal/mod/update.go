@@ -16,6 +16,10 @@ import (
 )
 
 func Update(confirm bool) error {
+	mu := new(sync.Mutex)
+	update := make(index.ModIndexes)
+	downloadCnt := new(atomic.Int64)
+
 	proc := mpb.New()
 	spn := proc.AddSpinner(int64(len(index.Mods)),
 		mpb.SpinnerOnLeft,
@@ -26,11 +30,6 @@ func Update(confirm bool) error {
 			decor.OnComplete(decor.CountersNoUnit("%d/%d", decor.WCSyncSpace), ""),
 		),
 	)
-
-	mu := new(sync.Mutex)
-	update := make(index.ModIndexes)
-	downloadCnt := new(atomic.Int64)
-
 	for modID, mod := range index.Mods {
 		go func(modID schema.ModID, mod *index.Mod) {
 			defer spn.Increment()
@@ -53,8 +52,12 @@ func Update(confirm bool) error {
 			mu.Unlock()
 		}(modID, mod)
 	}
-
 	proc.Wait()
+
+	if downloadCnt.Load() == 0 {
+		fmt.Println("All mods are up to date")
+		return nil
+	}
 
 	fmt.Println(update.String())
 
@@ -74,8 +77,6 @@ func Update(confirm bool) error {
 
 		downloadCnt := util.Download(".", downloadMods...)
 		fmt.Printf("%d mod(s) updated\n", downloadCnt)
-	} else {
-		fmt.Println("All mods are up to date")
 	}
 	return nil
 }

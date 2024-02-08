@@ -6,7 +6,6 @@ import (
 	"sync/atomic"
 
 	"github.com/ASjet/go-curseforge"
-	"github.com/ASjet/go-curseforge/api"
 	"github.com/ASjet/go-curseforge/schema"
 	"github.com/ASjet/go-curseforge/schema/enum"
 	"github.com/ASjet/m3/internal/index"
@@ -94,7 +93,7 @@ func Add(modLoaderStr string, confirm, optDep bool, ids ...int) error {
 			}
 		}
 
-		downloadCnt := util.Download(downloadMods...)
+		downloadCnt := util.Download(".", downloadMods...)
 		fmt.Printf("(%d/%d) mod downloaded\n", downloadCnt, len(allModIDs))
 	}
 	return nil
@@ -111,14 +110,14 @@ func fetchMods(modIDs ...schema.ModID) (fetchModResult, int64) {
 	for _, id := range modIDs {
 		go func(modID schema.ModID) {
 			defer wg.Done()
-			resp, err := api.Mod(modID)
-
 			var res util.Result[*schema.Mod]
+
+			mod, err := getModInfo(modID)
 			if err != nil {
 				res = util.Err[*schema.Mod](err)
 				res.Value = &schema.Mod{ID: modID}
 			} else {
-				res = util.Ok(&resp.Data)
+				res = util.Ok(mod)
 				successCnt.Add(1)
 			}
 
@@ -142,22 +141,13 @@ func fetchModFiles(modLoader enum.ModLoader, modIDs ...schema.ModID) fetchFileRe
 	for _, id := range modIDs {
 		go func(modID schema.ModID) {
 			defer wg.Done()
-			resp, err := api.ModFiles(modID,
-				api.ModFiles.WithGameVersion(index.Meta.GameVersion),
-				api.ModFiles.WithModLoader(modLoader),
-				api.ModFiles.WithIndex(0),
-				api.ModFiles.WithPageSize(1),
-			)
-			if err == nil && len(resp.Data) == 0 {
-				err = errors.Errorf("mod %d has no files for game version %s and mod loader %s",
-					modID, index.Meta.GameVersion, modLoader)
-			}
-
 			var res util.Result[*schema.File]
+
+			file, err := getLatestModFile(modID, modLoader)
 			if err != nil {
 				res = util.Err[*schema.File](err)
 			} else {
-				res = util.Ok(&resp.Data[0])
+				res = util.Ok(file)
 			}
 
 			mu.Lock()

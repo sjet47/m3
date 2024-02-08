@@ -28,7 +28,7 @@ type DownloadTask struct {
 	MD5Sum   string // Set to empty string to skip checksum verification
 }
 
-func Download(tasks ...*DownloadTask) (success int64) {
+func Download(dir string, tasks ...*DownloadTask) (success int64) {
 	successCnt := new(atomic.Int64)
 	wg := new(sync.WaitGroup)
 	wg.Add(len(tasks))
@@ -37,7 +37,7 @@ func Download(tasks ...*DownloadTask) (success int64) {
 	for _, task := range tasks {
 		go func(task *DownloadTask) {
 			defer wg.Done()
-			if err := task.download(".", proc); err != nil {
+			if err := task.download(dir, proc); err != nil {
 				log.Printf("Download %s error: %s", task.FileName, err)
 				return
 			}
@@ -62,7 +62,7 @@ func (d *DownloadTask) download(path string, proc *mpb.Progress) error {
 			decor.Name("Checking local file...", decor.WCSyncSpaceR),
 		),
 	)
-	passHashVerify, _ := verifyMD5Sum(filePath, d.MD5Sum, checkLocalBar)
+	passHashVerify := VerifyMD5Sum(filePath, d.MD5Sum, checkLocalBar)
 	checkLocalBar.SetTotal(0, true)
 
 	downloadBar := proc.AddBar(0,
@@ -134,18 +134,18 @@ func (d *DownloadTask) download(path string, proc *mpb.Progress) error {
 	return nil
 }
 
-func verifyMD5Sum(path, md5sum string, bar *mpb.Bar) (bool, error) {
+func VerifyMD5Sum(path, md5sum string, bar *mpb.Bar) bool {
 	if len(path) == 0 || len(md5sum) == 0 {
-		return false, nil
+		return false
 	}
 
 	if !IsFileExist(path) {
-		return false, nil
+		return false
 	}
 
 	f, err := os.Open(path)
 	if err != nil {
-		return false, err
+		return false
 	}
 	defer f.Close()
 
@@ -161,5 +161,5 @@ func verifyMD5Sum(path, md5sum string, bar *mpb.Bar) (bool, error) {
 	io.Copy(hasher, r)
 	fileHash := hex.EncodeToString(hasher.Sum(nil))
 
-	return strings.EqualFold(fileHash, md5sum), nil
+	return strings.EqualFold(fileHash, md5sum)
 }

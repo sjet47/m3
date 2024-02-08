@@ -53,10 +53,22 @@ func NewMod(modLoader enum.ModLoader, mod *schema.Mod, file *schema.File, isDep 
 	m.GameVersion = string(Meta.GameVersion)
 	m.ModLoader = modLoader.String()
 	m.IsDependency = isDep
+	m.Update(file)
+	return m
+}
 
+func EmptyMod(modLoader enum.ModLoader, modID schema.ModID) *Mod {
+	mod := new(Mod)
+	mod.ID = modID
+	mod.GameVersion = string(Meta.GameVersion)
+	mod.ModLoader = modLoader.String()
+	mod.File.Date = time.Now()
+	return nil
+}
+
+func (m *Mod) Update(file *schema.File) {
 	if file == nil {
 		m.File.Date = time.Now()
-		return m
 	}
 
 	m.File.ID = file.ID
@@ -73,16 +85,6 @@ func NewMod(modLoader enum.ModLoader, mod *schema.Mod, file *schema.File, isDep 
 	m.File.Date = file.FileDate
 	m.File.DownloadUrl = file.DownloadURL
 	m.File.IsServerPack = file.IsServerPack
-	return m
-}
-
-func EmptyMod(modLoader enum.ModLoader, modID schema.ModID) *Mod {
-	mod := new(Mod)
-	mod.ID = modID
-	mod.GameVersion = string(Meta.GameVersion)
-	mod.ModLoader = modLoader.String()
-	mod.File.Date = time.Now()
-	return nil
 }
 
 func initMod() error {

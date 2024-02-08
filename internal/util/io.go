@@ -62,7 +62,7 @@ func (d *DownloadTask) download(path string, proc *mpb.Progress) error {
 			decor.Name("Checking local file...", decor.WCSyncSpaceR),
 		),
 	)
-	passHashVerify, _ := verifyMD5Sum(filePath, d.MD5Sum, checkLocalBar)
+	passHashVerify := VerifyMD5Sum(filePath, d.MD5Sum, checkLocalBar)
 	checkLocalBar.SetTotal(0, true)
 
 	downloadBar := proc.AddBar(0,
@@ -134,18 +134,18 @@ func (d *DownloadTask) download(path string, proc *mpb.Progress) error {
 	return nil
 }
 
-func verifyMD5Sum(path, md5sum string, bar *mpb.Bar) (bool, error) {
+func VerifyMD5Sum(path, md5sum string, bar *mpb.Bar) bool {
 	if len(path) == 0 || len(md5sum) == 0 {
-		return false, nil
+		return false
 	}
 
 	if !IsFileExist(path) {
-		return false, nil
+		return false
 	}
 
 	f, err := os.Open(path)
 	if err != nil {
-		return false, err
+		return false
 	}
 	defer f.Close()
 
@@ -161,5 +161,5 @@ func verifyMD5Sum(path, md5sum string, bar *mpb.Bar) (bool, error) {
 	io.Copy(hasher, r)
 	fileHash := hex.EncodeToString(hasher.Sum(nil))
 
-	return strings.EqualFold(fileHash, md5sum), nil
+	return strings.EqualFold(fileHash, md5sum)
 }

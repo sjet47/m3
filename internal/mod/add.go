@@ -93,7 +93,7 @@ func Add(modLoaderStr string, confirm, optDep bool, ids ...int) error {
 			}
 		}
 
-		downloadCnt := util.Download(downloadMods...)
+		downloadCnt := util.Download(".", downloadMods...)
 		fmt.Printf("(%d/%d) mod downloaded\n", downloadCnt, len(allModIDs))
 	}
 	return nil

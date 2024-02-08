@@ -28,7 +28,7 @@ type DownloadTask struct {
 	MD5Sum   string // Set to empty string to skip checksum verification
 }
 
-func Download(tasks ...*DownloadTask) (success int64) {
+func Download(dir string, tasks ...*DownloadTask) (success int64) {
 	successCnt := new(atomic.Int64)
 	wg := new(sync.WaitGroup)
 	wg.Add(len(tasks))
@@ -37,7 +37,7 @@ func Download(tasks ...*DownloadTask) (success int64) {
 	for _, task := range tasks {
 		go func(task *DownloadTask) {
 			defer wg.Done()
-			if err := task.download(".", proc); err != nil {
+			if err := task.download(dir, proc); err != nil {
 				log.Printf("Download %s error: %s", task.FileName, err)
 				return
 			}

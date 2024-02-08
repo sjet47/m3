@@ -69,6 +69,7 @@ func EmptyMod(modLoader enum.ModLoader, modID schema.ModID) *Mod {
 func (m *Mod) Update(file *schema.File) {
 	if file == nil {
 		m.File.Date = time.Now()
+		return
 	}
 
 	m.File.ID = file.ID

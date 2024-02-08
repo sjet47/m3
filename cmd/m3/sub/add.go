@@ -15,16 +15,16 @@ import (
 )
 
 var (
-	confirm   bool
-	optDep    bool
-	modLoader string
-	fileInput string
+	confirmDownload bool
+	optDep          bool
+	modLoader       string
+	fileInput       string
 )
 
 func init() {
 	subCmdAdd.Flags().BoolVarP(&optDep,
 		"optional", "o", false, "Download optional dependencies")
-	subCmdAdd.Flags().BoolVarP(&confirm,
+	subCmdAdd.Flags().BoolVarP(&confirmDownload,
 		"confirm", "y", false, "Confirm download without prompt")
 	subCmdAdd.Flags().StringVarP(&modLoader,
 		"modloader", "l", "Forge", "Mod loader")
@@ -64,6 +64,6 @@ var subCmdAdd = &cobra.Command{
 		slices.Sort(modIDs)
 		slices.Compact(modIDs)
 
-		return mod.Add(modLoader, confirm, optDep, modIDs...)
+		return mod.Add(modLoader, confirmDownload, optDep, modIDs...)
 	},
 }

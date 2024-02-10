@@ -132,11 +132,15 @@ func saveMods() error {
 	}
 
 	for id, m := range Mods {
-		path := filepath.Join(modsDirPath, fmt.Sprintf("%d.json", id))
+		path := getModIndexByID(id)
 		if err := util.WriteJsonToFile(path, m); err != nil {
 			return errors.Wrapf(err, "write mod file at %s error", path)
 		}
 	}
 
 	return nil
+}
+
+func getModIndexByID(modID schema.ModID) string {
+	return filepath.Join(modsDirPath, fmt.Sprintf("%d.json", modID))
 }

@@ -3,6 +3,7 @@ package index
 import (
 	"fmt"
 	"io/fs"
+	"log"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -86,6 +87,24 @@ func (m *Mod) Update(file *schema.File) {
 	m.File.Date = file.FileDate
 	m.File.DownloadUrl = file.DownloadURL
 	m.File.IsServerPack = file.IsServerPack
+}
+
+func Remove(modIDs ...int) error {
+	deleted := 0
+	for _, id := range modIDs {
+		mod, ok := Mods[schema.ModID(id)]
+		if !ok {
+			log.Printf("No such mod id: %d", id)
+			continue
+		}
+		os.Remove(mod.File.Name)
+		os.Remove(getModIndexByID(mod.ID))
+		delete(Mods, schema.ModID(id))
+		deleted++
+		fmt.Printf("[%d]%s removed\n", mod.ID, mod.Name)
+	}
+	fmt.Printf("%d/%d mod(s) removed\n", deleted, len(modIDs))
+	return nil
 }
 
 func initMod() error {

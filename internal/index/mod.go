@@ -3,6 +3,7 @@ package index
 import (
 	"fmt"
 	"io/fs"
+	"log"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -88,6 +89,24 @@ func (m *Mod) Update(file *schema.File) {
 	m.File.IsServerPack = file.IsServerPack
 }
 
+func Remove(modIDs ...int) error {
+	deleted := 0
+	for _, id := range modIDs {
+		mod, ok := Mods[schema.ModID(id)]
+		if !ok {
+			log.Printf("No such mod id: %d", id)
+			continue
+		}
+		os.Remove(mod.File.Name)
+		os.Remove(getModIndexByID(mod.ID))
+		delete(Mods, schema.ModID(id))
+		deleted++
+		fmt.Printf("[%d]%s removed\n", mod.ID, mod.Name)
+	}
+	fmt.Printf("%d/%d mod(s) removed\n", deleted, len(modIDs))
+	return nil
+}
+
 func initMod() error {
 	if !util.IsDirExists(modsDirPath) {
 		if err := os.MkdirAll(modsDirPath, 0755); err != nil {
@@ -132,11 +151,15 @@ func saveMods() error {
 	}
 
 	for id, m := range Mods {
-		path := filepath.Join(modsDirPath, fmt.Sprintf("%d.json", id))
+		path := getModIndexByID(id)
 		if err := util.WriteJsonToFile(path, m); err != nil {
 			return errors.Wrapf(err, "write mod file at %s error", path)
 		}
 	}
 
 	return nil
+}
+
+func getModIndexByID(modID schema.ModID) string {
+	return filepath.Join(modsDirPath, fmt.Sprintf("%d.json", modID))
 }

@@ -1,4 +1,4 @@
-package sub
+package cmd
 
 import (
 	"github.com/ASjet/m3/internal/index"

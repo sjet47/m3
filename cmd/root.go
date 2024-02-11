@@ -1,7 +1,7 @@
 /*
 Copyright © 2024 Aryan Sjet <sjet@asjet.dev>
 */
-package sub
+package cmd
 
 import (
 	"errors"

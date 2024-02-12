@@ -76,7 +76,7 @@ func Add(modLoaderStr string, confirm, optDep bool, ids ...int) error {
 	fmt.Println(newMods.String())
 
 	// Prompt user for download confirmation with mod info
-	if found > 0 && promptDownload(confirm) {
+	if found > 0 && (confirm || util.Prompt("Download mods?")) {
 		downloadMods := make([]*util.DownloadTask, 0, len(modFileMap))
 
 		for modID, mod := range newMods {

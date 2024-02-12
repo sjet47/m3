@@ -61,7 +61,7 @@ func Update(confirm bool) error {
 
 	fmt.Println(update.String())
 
-	if downloadCnt.Load() > 0 && promptDownload(confirm) {
+	if downloadCnt.Load() > 0 && (confirm || util.Prompt("Update mods?")) {
 		downloadMods := make([]*util.DownloadTask, 0, len(update))
 
 		for _, mod := range update {

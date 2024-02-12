@@ -1,8 +1,10 @@
 package util
 
 import (
+	"bufio"
 	"crypto/md5"
 	"encoding/hex"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -162,4 +164,21 @@ func VerifyMD5Sum(path, md5sum string, bar *mpb.Bar) bool {
 	fileHash := hex.EncodeToString(hasher.Sum(nil))
 
 	return strings.EqualFold(fileHash, md5sum)
+}
+
+func Prompt(prompt string) bool {
+	return strings.ToLower(Input(prompt+" [y/N]", "N")) == "y"
+}
+
+func Input(str, byDefault string) string {
+	fmt.Print(str)
+	scanner := bufio.NewScanner(os.Stdin)
+	for scanner.Scan() {
+		if text := scanner.Text(); len(text) > 0 {
+			return text
+		} else {
+			return byDefault
+		}
+	}
+	return ""
 }

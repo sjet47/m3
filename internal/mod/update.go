@@ -55,7 +55,7 @@ func Update(confirm bool) error {
 	proc.Wait()
 
 	if downloadCnt.Load() == 0 {
-		fmt.Println("All mods are up to date")
+		fmt.Println("🎉 All mods are up to date")
 		return nil
 	}
 

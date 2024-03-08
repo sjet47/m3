@@ -11,7 +11,7 @@ func renderMods(mods ModIndexes) string {
 	t := table.NewWriter()
 	t.SetStyle(table.StyleRounded)
 	t.Style().Format.Header = text.FormatDefault
-	t.AppendHeader(table.Row{"ModID", "Name", "Latest Release Date", "Indirect"})
+	t.AppendHeader(table.Row{"ModID", "Name", "ModLoader", "Latest Release Date", "Indirect"})
 	t.SortBy([]table.SortBy{{Name: "Name", Mode: table.Asc}, {Name: "ModID", Mode: table.Asc}})
 	t.SetAutoIndex(true)
 
@@ -27,6 +27,7 @@ func renderMods(mods ModIndexes) string {
 			t.AppendRow(table.Row{
 				modID,
 				mod.Name,
+				mod.ModLoader,
 				date,
 				mod.IsDependency,
 			})

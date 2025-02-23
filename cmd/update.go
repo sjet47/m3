@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/ASjet/m3/internal/mod"
+	"github.com/sjet47/m3/internal/mod"
 	"github.com/spf13/cobra"
 )
 

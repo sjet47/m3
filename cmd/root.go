@@ -7,8 +7,8 @@ import (
 	"errors"
 	"os"
 
-	"github.com/ASjet/m3/internal/index"
-	"github.com/ASjet/m3/internal/mod"
+	"github.com/sjet47/m3/internal/index"
+	"github.com/sjet47/m3/internal/mod"
 
 	"github.com/spf13/cobra"
 )
@@ -32,7 +32,7 @@ func initApiKey(cmd *cobra.Command, args []string) error {
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "m3",
-	Short: "A Minecraft Mod Manager (https://github.com/ASjet/m3)",
+	Short: "A Minecraft Mod Manager (https://github.com/sjet47/m3)",
 	Args:  cobra.ExactArgs(1),
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		if skipLoad[cmd.Name()] {

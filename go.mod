@@ -1,11 +1,11 @@
-module github.com/ASjet/m3
+module github.com/sjet47/m3
 
 go 1.21.6
 
 require (
-	github.com/ASjet/go-curseforge v0.5.2
 	github.com/jedib0t/go-pretty/v6 v6.6.4
 	github.com/pkg/errors v0.9.1
+	github.com/sjet47/go-curseforge v0.6.0
 	github.com/spf13/cobra v1.8.1
 	github.com/stretchr/testify v1.8.4
 	github.com/vbauerster/mpb v3.4.0+incompatible

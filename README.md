@@ -5,7 +5,7 @@ Download/Update/Manage your Minecraft mods in different version all together
 ## Install
 
 ```shell
-go install github.com/ASjet/m3
+go install github.com/sjet47/m3
 ```
 
 ## Usage

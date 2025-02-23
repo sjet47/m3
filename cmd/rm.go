@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/ASjet/m3/internal/index"
-	"github.com/ASjet/m3/internal/util"
+	"github.com/sjet47/m3/internal/index"
+	"github.com/sjet47/m3/internal/util"
 	"github.com/spf13/cobra"
 )
 

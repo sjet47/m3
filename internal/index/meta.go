@@ -5,9 +5,9 @@ import (
 	"path/filepath"
 	"regexp"
 
-	"github.com/ASjet/m3/internal/util"
+	"github.com/sjet47/m3/internal/util"
 
-	"github.com/ASjet/go-curseforge/schema"
+	"github.com/sjet47/go-curseforge/schema"
 	"github.com/pkg/errors"
 )
 

@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ASjet/go-curseforge/schema"
-	"github.com/ASjet/go-curseforge/schema/enum"
-	"github.com/ASjet/m3/internal/util"
+	"github.com/sjet47/go-curseforge/schema"
+	"github.com/sjet47/go-curseforge/schema/enum"
+	"github.com/sjet47/m3/internal/util"
 	"github.com/pkg/errors"
 )
 

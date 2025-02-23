@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/ASjet/m3/internal/index"
+	"github.com/sjet47/m3/internal/index"
 	"github.com/spf13/cobra"
 )
 

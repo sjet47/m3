@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/ASjet/m3/internal/util"
+	"github.com/sjet47/m3/internal/util"
 
 	"github.com/pkg/errors"
 )

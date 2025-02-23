@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ASjet/m3/internal/mod"
-	"github.com/ASjet/m3/internal/util"
+	"github.com/sjet47/m3/internal/mod"
+	"github.com/sjet47/m3/internal/util"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )

@@ -7,10 +7,10 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/ASjet/go-curseforge/schema"
-	"github.com/ASjet/go-curseforge/schema/enum"
-	"github.com/ASjet/m3/internal/index"
-	"github.com/ASjet/m3/internal/util"
+	"github.com/sjet47/go-curseforge/schema"
+	"github.com/sjet47/go-curseforge/schema/enum"
+	"github.com/sjet47/m3/internal/index"
+	"github.com/sjet47/m3/internal/util"
 	"github.com/vbauerster/mpb"
 	"github.com/vbauerster/mpb/decor"
 )
